@@ -56,22 +56,7 @@ See below an example using shared state among components.
     <app-actions></app-actions>
   `,
 })
-export class AppComponent {
-  
-    sum: number;
-
-    contructor(
-        private sumStoreService: SumStoreService
-    ) { }
-
-    ngOnInit() {
-        sumStoreService
-            .changes
-            .subscribe(state => {
-                this.sum = state;
-            })
-    }
-}
+export class AppComponent { }
 ```
 
 ```ts
@@ -90,7 +75,7 @@ export class TotalComponent {
     ) { }
 
     ngOnInit() {
-        sumStoreService
+        this.sumStoreService
             .changes
             .subscribe(state => {
                 this.sum = state;
@@ -139,3 +124,4 @@ export class ActionsComponent {
 
 > This project is being developed using TDD. The main goal is to reach 100% of coverage. 
 
+Thanks for coming!
