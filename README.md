@@ -2,6 +2,8 @@
 
 A dead simple state management for Angular. Strongly inspired by Vuex.
 
+<img src="stir.png" width="100%">
+
 ## Motivation
 
 The most of time, developers are using huge state management packages to solve simple problems - like ngrx/store. The motivation behind this project is to show how this kind of solution can be simple.  
