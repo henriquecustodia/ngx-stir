@@ -1,27 +1,141 @@
 # NgxStir
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.0.0.
+A dead simple state management for Angular. Strongly inspired by Vuex.
 
-## Development server
+## Motivation
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+The most of time, developers are using huge state management packages to solve simple problems - like ngrx/store. The motivation behind this project is to show how this kind of solution can be simple.  
 
-## Code scaffolding
+We don't need complex solutions to solve simple problems.   
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## How to create a store
 
-## Build
+You just need to make a service extends the `Stir` class.  
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```ts
+@Injectable({
+  providedIn: 'root'
+})
+export class SumStoreService extends Stir<number>{
 
-## Running unit tests
+  constructor() { 
+    super(0);
+  }
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+  add(value: number) {
+    this.setState(this.state + value); 
+  }
 
-## Running end-to-end tests
+  subtract(value: number) {
+    if(this.state === 0) {
+        return;
+    }
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+    this.setState(this.state - value); 
+  }
+  
+}
 
-## Further help
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+That's all! 
+
+The service can handle asynchronous and synchronous operations. 
+
+> The `Stir` class can deal only with synchronous operations.
+
+## Using with components
+
+See below an example using shared state among components.
+
+```ts
+@Component({
+  selector: 'app-root',
+  template: `
+    <app-total></app-total>
+    <app-actions></app-actions>
+  `,
+})
+export class AppComponent {
+  
+    sum: number;
+
+    contructor(
+        private sumStoreService: SumStoreService
+    ) { }
+
+    ngOnInit() {
+        sumStoreService
+            .changes
+            .subscribe(state => {
+                this.sum = state;
+            })
+    }
+}
+```
+
+```ts
+@Component({
+  selector: 'app-total',
+  template: `
+    <strong>Total: {{ total }}</strong>
+  `,
+})
+export class TotalComponent {
+  
+    sum: number = this.sumStoreService.state;
+
+    contructor(
+        private sumStoreService: SumStoreService
+    ) { }
+
+    ngOnInit() {
+        sumStoreService
+            .changes
+            .subscribe(state => {
+                this.sum = state;
+            });
+    }
+}
+```
+
+```ts
+@Component({
+  selector: 'app-actions',
+  template: `
+    <button (click)="onAdd()">+</button>
+    <button (click)="onSubtract()">-</button>
+  `,
+})
+export class ActionsComponent {
+  
+    contructor(
+        private sumStoreService: SumStoreService
+    ) { }
+
+    onAdd() {
+        this.sumStoreService.add(1);
+    }
+
+    onSubtract() {
+        this.sumStoreService.subtract(1);
+    }
+}
+```
+
+## Properties
+
+| Name  | Type          | Description                       |   
+|---        |---            |---                                |
+| state  | T (Generic Type) | The state of store                |   
+| changes  | Observable<T>  | Emit an event when state changes  |
+
+## Methods
+
+| Name      | Param                   | Description       |   
+|---        |---                      |---                |
+| setState  | value: T (Generic Type) | Set a new state   |   
+
+
+> This project is being developed using TDD. The main goal is to reach 100% of coverage. 
+
